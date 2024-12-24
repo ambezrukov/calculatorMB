@@ -4,6 +4,7 @@ const ProfitCalculator = () => {
   const [amount, setAmount] = useState('');
   const [clientPartnerType, setClientPartnerType] = useState('default');
   const [defaultClientPartner, setDefaultClientPartner] = useState('');
+  const [clientSharePercentage, setClientSharePercentage] = useState(10); // новое состояние
   const [customClientShares, setCustomClientShares] = useState({
     Анатолий: 0,
     Денис: 0,
@@ -15,6 +16,9 @@ const ProfitCalculator = () => {
   const [mbConvincer, setMbConvincer] = useState('');
 
   const partners = ['Анатолий', 'Денис', 'Михаил', 'Юрий'];
+  
+  // Создаем массив возможных процентов от 10 до 30 с шагом 2.5
+  const percentageOptions = Array.from({ length: 9 }, (_, i) => 10 + i * 2.5);
 
   const totalClientShares = Object.values(customClientShares).reduce((sum, share) => sum + Number(share), 0);
   const isClientSharesValid = Math.abs(totalClientShares - 100) < 0.01;
@@ -22,19 +26,21 @@ const ProfitCalculator = () => {
   const calculateShare = (partner) => {
     if (!amount) return 0;
     const numAmount = parseFloat(amount);
+    const clientShareDecimal = clientSharePercentage / 100; // преобразуем процент в десятичную дробь
 
     let clientShare = 0;
     if (clientPartnerType === 'default') {
-      clientShare = partner === defaultClientPartner ? numAmount * 0.1 : 0;
+      clientShare = partner === defaultClientPartner ? numAmount * clientShareDecimal : 0;
     } else {
-      clientShare = numAmount * 0.1 * (customClientShares[partner] / 100);
+      clientShare = numAmount * clientShareDecimal * (customClientShares[partner] / 100);
     }
     
-    const mbProviderShare = partner === mbProvider ? numAmount * 0.9 * 0.25 : 0;
-    const mbConvincerShare = partner === mbConvincer ? numAmount * 0.9 * 0.25 : 0;
+    const remainingAmount = numAmount * (1 - clientShareDecimal); // оставшаяся сумма после выплаты клиентской доли
+    const mbProviderShare = partner === mbProvider ? remainingAmount * 0.25 : 0;
+    const mbConvincerShare = partner === mbConvincer ? remainingAmount * 0.25 : 0;
     const remainingShare = partner === 'Юрий' 
-      ? numAmount * 0.9 * 0.5 * 0.077 
-      : numAmount * 0.9 * 0.5 * 0.923 / 3;
+      ? remainingAmount * 0.5 * 0.077 
+      : remainingAmount * 0.5 * 0.923 / 3;
     
     return clientShare + mbProviderShare + mbConvincerShare + remainingShare;
   };
@@ -62,6 +68,19 @@ const ProfitCalculator = () => {
           />
         </div>
         
+        <div>
+          <label className="block text-xl font-semibold mb-2">Процент клиентской доли:</label>
+          <select
+            value={clientSharePercentage}
+            onChange={(e) => setClientSharePercentage(Number(e.target.value))}
+            className="w-full p-3 border rounded-lg mb-3 focus:ring-2 focus:ring-blue-500"
+          >
+            {percentageOptions.map(percent => (
+              <option key={percent} value={percent}>{percent}%</option>
+            ))}
+          </select>
+        </div>
+
         <div>
           <label className="block text-xl font-semibold mb-2">Чей клиент:</label>
           <select
@@ -160,7 +179,7 @@ const ProfitCalculator = () => {
             <div className="mt-4 p-4 border rounded-lg bg-gray-50">
               <div className="font-medium text-lg">Другие</div>
               <div className="text-xl font-semibold text-blue-600">
-                {(parseFloat(amount) * 0.1 * (customClientShares.Другие / 100)).toLocaleString('ru-RU', {
+                {(parseFloat(amount) * (clientSharePercentage / 100) * (customClientShares.Другие / 100)).toLocaleString('ru-RU', {
                   style: 'currency',
                   currency: 'RUB',
                   maximumFractionDigits: 2
