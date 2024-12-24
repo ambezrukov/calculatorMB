@@ -69,7 +69,7 @@ const ProfitCalculator = () => {
         </div>
         
         <div>
-          <label className="block text-xl font-semibold mb-2">Процент клиентской доли:</label>
+          <label className="block text-xl font-semibold mb-2">Размер менеджерского процента:</label>
           <select
             value={clientSharePercentage}
             onChange={(e) => setClientSharePercentage(Number(e.target.value))}
