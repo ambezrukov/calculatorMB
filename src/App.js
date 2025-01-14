@@ -26,7 +26,7 @@ const ProfitCalculator = () => {
  const calculateShare = (partner) => {
     if (!amount) return 0;
     const numAmount = parseFloat(amount);
-    
+
     // 1. Первые 50% распределяются на МБ и убеждение
     const mbProviderShare = partner === mbProvider ? numAmount * 0.25 : 0;
     const mbConvincerShare = partner === mbConvincer ? numAmount * 0.25 : 0;
@@ -47,6 +47,7 @@ const ProfitCalculator = () => {
     const finalShare = partner === 'Юрий' 
       ? remainingAfterManager * 0.077 
       : remainingAfterManager * 0.923 / 3;
+
     
     return mbProviderShare + mbConvincerShare + managerShare + finalShare;
 };
