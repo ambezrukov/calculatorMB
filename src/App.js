@@ -23,10 +23,10 @@ const ProfitCalculator = () => {
   const totalClientShares = Object.values(customClientShares).reduce((sum, share) => sum + Number(share), 0);
   const isClientSharesValid = Math.abs(totalClientShares - 100) < 0.01;
 
- const calculateShare = (partner) => {
+const calculateShare = (partner) => {
     if (!amount) return 0;
     const numAmount = parseFloat(amount);
-
+    
     // 1. Первые 50% распределяются на МБ и убеждение
     const mbProviderShare = partner === mbProvider ? numAmount * 0.25 : 0;
     const mbConvincerShare = partner === mbConvincer ? numAmount * 0.25 : 0;
@@ -42,15 +42,15 @@ const ProfitCalculator = () => {
       managerShare = remainingAfterMB * managerShareDecimal * (customClientShares[partner] / 100);
     }
     
-    // 3. Оставшаяся сумма распределяется между всеми
+    // 3. Оставшаяся сумма распределяется между всеми (от суммы после вычета менеджерского процента)
     const remainingAfterManager = remainingAfterMB * (1 - managerShareDecimal);
     const finalShare = partner === 'Юрий' 
       ? remainingAfterManager * 0.077 
       : remainingAfterManager * 0.923 / 3;
-
     
-    return mbProviderShare + mbConvincerShare + managerShare + finalShare;
-};
+    const total = Math.round((mbProviderShare + mbConvincerShare + managerShare + finalShare) * 100) / 100;
+    return total;
+  };
 
   const handleCustomShareChange = (partner, value) => {
     setCustomClientShares(prev => ({
