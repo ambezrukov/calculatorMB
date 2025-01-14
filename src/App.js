@@ -23,27 +23,33 @@ const ProfitCalculator = () => {
   const totalClientShares = Object.values(customClientShares).reduce((sum, share) => sum + Number(share), 0);
   const isClientSharesValid = Math.abs(totalClientShares - 100) < 0.01;
 
-  const calculateShare = (partner) => {
+ const calculateShare = (partner) => {
     if (!amount) return 0;
     const numAmount = parseFloat(amount);
-    const clientShareDecimal = clientSharePercentage / 100; // преобразуем процент в десятичную дробь
-
-    let clientShare = 0;
+    
+    // 1. Первые 50% распределяются на МБ и убеждение
+    const mbProviderShare = partner === mbProvider ? numAmount * 0.25 : 0;
+    const mbConvincerShare = partner === mbConvincer ? numAmount * 0.25 : 0;
+    
+    // 2. От оставшихся 50% вычисляем менеджерский процент
+    const remainingAfterMB = numAmount * 0.5;
+    const managerShareDecimal = clientSharePercentage / 100;
+    
+    let managerShare = 0;
     if (clientPartnerType === 'default') {
-      clientShare = partner === defaultClientPartner ? numAmount * clientShareDecimal : 0;
+      managerShare = partner === defaultClientPartner ? remainingAfterMB * managerShareDecimal : 0;
     } else {
-      clientShare = numAmount * clientShareDecimal * (customClientShares[partner] / 100);
+      managerShare = remainingAfterMB * managerShareDecimal * (customClientShares[partner] / 100);
     }
     
-    const remainingAmount = numAmount * (1 - clientShareDecimal); // оставшаяся сумма после выплаты клиентской доли
-    const mbProviderShare = partner === mbProvider ? remainingAmount * 0.25 : 0;
-    const mbConvincerShare = partner === mbConvincer ? remainingAmount * 0.25 : 0;
-    const remainingShare = partner === 'Юрий' 
-      ? remainingAmount * 0.5 * 0.077 
-      : remainingAmount * 0.5 * 0.923 / 3;
+    // 3. Оставшаяся сумма распределяется между всеми
+    const remainingAfterManager = remainingAfterMB * (1 - managerShareDecimal);
+    const finalShare = partner === 'Юрий' 
+      ? remainingAfterManager * 0.077 
+      : remainingAfterManager * 0.923 / 3;
     
-    return clientShare + mbProviderShare + mbConvincerShare + remainingShare;
-  };
+    return mbProviderShare + mbConvincerShare + managerShare + finalShare;
+};
 
   const handleCustomShareChange = (partner, value) => {
     setCustomClientShares(prev => ({
