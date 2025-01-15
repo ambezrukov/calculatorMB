@@ -57,6 +57,20 @@ const ProfitCalculator = () => {
     }));
   };
 
+  const formatAmount = (value) => {
+    if (!value) return '';
+    return parseFloat(value).toLocaleString('ru-RU', {
+      style: 'currency',
+      currency: 'RUB',
+      maximumFractionDigits: 2
+    });
+  };
+
+  const handleAmountChange = (e) => {
+    const rawValue = e.target.value.replace(/[^0-9]/g, '');
+    setAmount(rawValue);
+  };
+
   return (
     <div className="w-full max-w-xl mx-auto bg-white p-6 rounded-lg shadow-lg">
       <h1 className="text-4xl font-extrabold text-center mb-6">Калькулятор МБ</h1>
@@ -64,22 +78,15 @@ const ProfitCalculator = () => {
       <div className="space-y-6">
         <div>
           <label className="block text-xl font-semibold mb-2">Сумма поступления:</label>
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
-            placeholder="Введите сумму"
-          />
-          {amount && (
-            <div className="mt-2 text-xl font-semibold text-blue-600">
-              {parseFloat(amount).toLocaleString('ru-RU', {
-                style: 'currency',
-                currency: 'RUB',
-                maximumFractionDigits: 2
-              })}
-            </div>
-          )}
+          <div className="w-full p-3 border rounded-lg focus-within:ring-2 focus-within:ring-blue-500 bg-white">
+            <input
+              type="text"
+              value={amount ? formatAmount(amount) : ''}
+              onChange={handleAmountChange}
+              className="w-full outline-none text-xl font-semibold text-blue-600"
+              placeholder="Введите сумму"
+            />
+          </div>
         </div>
         
         <div>
