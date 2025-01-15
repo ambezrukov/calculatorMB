@@ -71,6 +71,15 @@ const ProfitCalculator = () => {
             className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
             placeholder="Введите сумму"
           />
+          {amount && (
+            <div className="mt-2 text-xl font-semibold text-blue-600">
+              {parseFloat(amount).toLocaleString('ru-RU', {
+                style: 'currency',
+                currency: 'RUB',
+                maximumFractionDigits: 2
+              })}
+            </div>
+          )}
         </div>
         
         <div>
@@ -193,7 +202,6 @@ const ProfitCalculator = () => {
             </div>
           )}
 
-          {/* Новый блок с информацией о выручке */}
           <div className="mt-6 p-4 border rounded-lg bg-gray-50">
             <h4 className="text-lg font-semibold mb-2">
               Сумма, учитываемая в общем потоке выручки для целей прогрессивного менеджерского процента:
@@ -201,26 +209,30 @@ const ProfitCalculator = () => {
             <div className="text-lg">
               {amount && (
                 clientPartnerType === 'default' ? (
-                  <>
-                    {(parseFloat(amount) * 0.5).toLocaleString('ru-RU', {
-                      style: 'currency',
-                      currency: 'RUB',
-                      maximumFractionDigits: 2
-                    })}
-                    {defaultClientPartner && ` (${defaultClientPartner})`}
-                  </>
+                  <div>
+                    <span className="text-xl font-semibold text-blue-600">
+                      {(parseFloat(amount) * 0.5).toLocaleString('ru-RU', {
+                        style: 'currency',
+                        currency: 'RUB',
+                        maximumFractionDigits: 2
+                      })}
+                    </span>
+                    {defaultClientPartner && <span className="text-lg"> ({defaultClientPartner})</span>}
+                  </div>
                 ) : (
                   <div className="space-y-1">
                     {Object.entries(customClientShares)
                       .filter(([_, share]) => share > 0)
                       .map(([partner, share]) => (
                         <div key={partner}>
-                          {(parseFloat(amount) * 0.5 * (share / 100)).toLocaleString('ru-RU', {
-                            style: 'currency',
-                            currency: 'RUB',
-                            maximumFractionDigits: 2
-                          })}
-                          {` (${partner})`}
+                          <span className="text-xl font-semibold text-blue-600">
+                            {(parseFloat(amount) * 0.5 * (share / 100)).toLocaleString('ru-RU', {
+                              style: 'currency',
+                              currency: 'RUB',
+                              maximumFractionDigits: 2
+                            })}
+                          </span>
+                          <span className="text-lg"> ({partner})</span>
                         </div>
                       ))}
                   </div>
