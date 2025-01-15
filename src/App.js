@@ -4,7 +4,7 @@ const ProfitCalculator = () => {
   const [amount, setAmount] = useState('');
   const [clientPartnerType, setClientPartnerType] = useState('default');
   const [defaultClientPartner, setDefaultClientPartner] = useState('');
-  const [clientSharePercentage, setClientSharePercentage] = useState(10); // новое состояние
+  const [clientSharePercentage, setClientSharePercentage] = useState(10);
   const [customClientShares, setCustomClientShares] = useState({
     Анатолий: 0,
     Денис: 0,
@@ -16,14 +16,12 @@ const ProfitCalculator = () => {
   const [mbConvincer, setMbConvincer] = useState('');
 
   const partners = ['Анатолий', 'Денис', 'Михаил', 'Юрий'];
-  
-  // Создаем массив возможных процентов от 10 до 30 с шагом 2.5
   const percentageOptions = Array.from({ length: 9 }, (_, i) => 10 + i * 2.5);
 
   const totalClientShares = Object.values(customClientShares).reduce((sum, share) => sum + Number(share), 0);
   const isClientSharesValid = Math.abs(totalClientShares - 100) < 0.01;
 
-const calculateShare = (partner) => {
+  const calculateShare = (partner) => {
     if (!amount) return 0;
     const numAmount = parseFloat(amount);
     
@@ -42,7 +40,7 @@ const calculateShare = (partner) => {
       managerShare = remainingAfterMB * managerShareDecimal * (customClientShares[partner] / 100);
     }
     
-    // 3. Оставшаяся сумма распределяется между всеми (от суммы после вычета менеджерского процента)
+    // 3. Оставшаяся сумма распределяется между всеми
     const remainingAfterManager = remainingAfterMB * (1 - managerShareDecimal);
     const finalShare = partner === 'Юрий' 
       ? remainingAfterManager * 0.077 
@@ -194,6 +192,43 @@ const calculateShare = (partner) => {
               </div>
             </div>
           )}
+
+          {/* Новый блок с информацией о выручке */}
+          <div className="mt-6 p-4 border rounded-lg bg-gray-50">
+            <h4 className="text-lg font-semibold mb-2">
+              Сумма, учитываемая в общем потоке выручки для целей прогрессивного менеджерского процента:
+            </h4>
+            <div className="text-lg">
+              {amount && (
+                clientPartnerType === 'default' ? (
+                  <>
+                    {(parseFloat(amount) * 0.5).toLocaleString('ru-RU', {
+                      style: 'currency',
+                      currency: 'RUB',
+                      maximumFractionDigits: 2
+                    })}
+                    {defaultClientPartner && ` (${defaultClientPartner})`}
+                  </>
+                ) : (
+                  <div className="space-y-1">
+                    {Object.entries(customClientShares)
+                      .filter(([_, share]) => share > 0)
+                      .map(([partner, share]) => (
+                        <div key={partner}>
+                          {(parseFloat(amount) * 0.5 * (share / 100)).toLocaleString('ru-RU', {
+                            style: 'currency',
+                            currency: 'RUB',
+                            maximumFractionDigits: 2
+                          })}
+                          {` (${partner})`}
+                        </div>
+                      ))}
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
